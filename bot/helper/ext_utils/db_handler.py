@@ -67,6 +67,7 @@ class DbManger:
                 del row["_id"]
                 thumb_path = f"Thumbnails/{uid}.jpg"
                 rclone_path = f"rclone/{uid}.conf"
+                watermark_path = f"watermarks/{uid}.png"
                 if row.get("thumb"):
                     if not await aiopath.exists("Thumbnails"):
                         await makedirs("Thumbnails")
@@ -79,6 +80,12 @@ class DbManger:
                     async with aiopen(rclone_path, "wb+") as f:
                         await f.write(row["rclone"])
                     row["rclone"] = rclone_path
+                if isinstance(row.get("VT_WM_IMAGE"), (bytes, bytearray)):
+                    if not await aiopath.exists("watermarks"):
+                        await makedirs("watermarks")
+                    async with aiopen(watermark_path, "wb+") as f:
+                        await f.write(row["VT_WM_IMAGE"])
+                    row["VT_WM_IMAGE"] = watermark_path
                 user_data[uid] = row
             LOGGER.info("Users data has been imported from Database")
         # Rss Data
@@ -145,11 +152,14 @@ class DbManger:
     async def update_user_data(self, user_id):
         if self.__err:
             return
-        data = user_data[user_id]
-        if data.get("thumb"):
-            del data["thumb"]
-        if data.get("rclone"):
-            del data["rclone"]
+        data = user_data[user_id].copy()
+        current = await self.__db.users[bot_id].find_one(
+            {"_id": user_id}, {"thumb": 1, "rclone": 1, "VT_WM_IMAGE": 1}
+        ) or {}
+        for key in ("thumb", "rclone", "VT_WM_IMAGE"):
+            data.pop(key, None)
+            if current.get(key):
+                data[key] = current[key]
         await self.__db.users[bot_id].replace_one({"_id": user_id}, data, upsert=True)
         self.__conn.close
 

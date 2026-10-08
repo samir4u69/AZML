@@ -45,6 +45,9 @@ class ButtonMaker:
         elif position == "footer":
             self.__footer_button.append(btn)
 
+    def data_button(self, key, data, position=None, small_cap=False, style=None):
+        self.ibutton(key, data, position, small_cap, style)
+
     def ibutton(self, key, data, position=None, small_cap=False, style=None):
         btn_text = format_btn_text(key, small_cap)
         btn = InlineKeyboardButton(text=btn_text, callback_data=data)

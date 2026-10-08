@@ -68,6 +68,7 @@ from bot.helper.telegram_helper.message_utils import (
     parse_tag_info,
 )
 from bot.helper.listeners.tasks_listener import MirrorLeechListener
+from bot.modules.video_tools import video_tool_pre_config
 from bot.helper.ext_utils.help_messages import (
     MIRROR_HELP_MESSAGE,
     CLONE_HELP_MESSAGE,
@@ -195,6 +196,7 @@ async def _mirror_leech(
         "-st": False,
         "-streams": False,
         "-ff": "",
+        "-vt": False,
     }
 
     args = arg_parser(input_list[1:], arg_base)
@@ -235,6 +237,7 @@ async def _mirror_leech(
     sshots = int(ss) if (ss := (args["-ss"] or args["-screenshots"])).isdigit() else 0
     stream_select = args["-st"] or args["-streams"]
     ffmpeg_cmds = args["-ff"]
+    video_tool = args["-vt"]
     bulk_start = 0
     bulk_end = 0
     ratio = None
@@ -319,7 +322,8 @@ async def _mirror_leech(
         await sleep(5)
         _mirror_leech(client, nextmsg, isQbit, isLeech, sameDir, bulk)
 
-    __run_multi()
+    if not video_tool:
+        __run_multi()
 
     path = f"{DOWNLOAD_DIR}{message.id}{folder_name}"
 
@@ -585,7 +589,21 @@ async def _mirror_leech(
         leech_utils={"screenshots": sshots, "thumb": thumb, "stream_options": stream_options},
         custom_name=name,  # Pass actual custom name string from -n flag
         ffmpeg_cmds=ffmpeg_cmds,
+        video_tool=video_tool,
     )
+
+    if video_tool:
+        if sameDir and sameDir.get("vt_func_key"):
+            listener.vt_func_key = sameDir["vt_func_key"]
+            confirmed = True
+        else:
+            confirmed = await video_tool_pre_config(listener)
+            if confirmed and sameDir is not None:
+                sameDir["vt_func_key"] = listener.vt_func_key
+        if not confirmed:
+            await delete_links(message)
+            return
+        __run_multi()
 
     if file_ is not None:
         await delete_links(message)

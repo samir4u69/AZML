@@ -756,6 +756,11 @@ class MentionStr(str):
         return str(self)
 
 
+send_message = sendMessage
+edit_message = editMessage
+delete_message = deleteMessage
+send_file = sendFile
+
 class CustomUser:
     def __init__(self, uid, uname, fname, m, client=None):
         self.id = uid

@@ -62,6 +62,7 @@ from bot.helper.ext_utils.leech_utils import (
     extract_streams,
 )
 from bot.helper.ext_utils.ffmpeg_utils import resolve_ffmpeg_cmds, proceed_ffmpeg
+from bot.modules.video_tools import proceed_video_tool
 from bot.helper.ext_utils.exceptions import NotSupportedExtractionArchive
 from bot.helper.ext_utils.task_manager import start_from_queued
 from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
@@ -117,6 +118,7 @@ class MirrorLeechListener:
         leech_utils={},
         custom_name=False,  # Track if user provided -n custom_name
         ffmpeg_cmds=None,
+        video_tool=False,
     ):
         if sameDir is None:
             sameDir = {}
@@ -158,6 +160,15 @@ class MirrorLeechListener:
         self.leech_utils = leech_utils
         self.custom_name = custom_name  # Store custom name flag
         self.ffmpeg_cmds = ffmpeg_cmds
+        self.video_tool = video_tool
+        self.vt_func_key = None
+        self.is_cancelled = False
+        self.mid = self.uid
+        self.name = custom_name or "Task"
+        self.size = 0
+        self.progress = True
+        self.files_to_proceed = []
+        self.proceed_count = 0
         self.source_url = (
             source_url
             if source_url and source_url.startswith("http")
@@ -284,6 +295,7 @@ class MirrorLeechListener:
             name = str(download.name()).replace("/", "")
             gid = download.gid()
         LOGGER.info(f"Download Completed: {name}")
+        self.name = name
         if multi_links:
             await self.onUploadError("Downloaded! Starting other part of the Task...")
             return
@@ -319,6 +331,8 @@ class MirrorLeechListener:
                             
         up_path = ""
         size = await get_path_size(dl_path)
+        self.name = name
+        self.size = size
         async with queue_dict_lock:
             if self.uid in non_queued_dl:
                 non_queued_dl.remove(self.uid)
@@ -435,6 +449,19 @@ class MirrorLeechListener:
                 LOGGER.info("Not any valid archive, uploading file as it is.")
                 self.newDir = ""
                 up_path = dl_path
+
+        if self.video_tool:
+            video_path = up_path or dl_path
+            result = await proceed_video_tool(self, video_path, gid)
+            if self.is_cancelled:
+                return
+            if result:
+                up_path = result
+                dl_path = result
+                name = ospath.basename(ospath.normpath(result))
+                size = await get_path_size(result)
+                self.name = name
+                self.size = size
 
         # ===== Custom FFmpeg Commands =====
         if self.ffmpeg_cmds:
@@ -1085,3 +1112,8 @@ class MirrorLeechListener:
         await clean_download(self.dir)
         if self.newDir:
             await clean_download(self.newDir)
+
+    async def on_upload_error(self, error, is_cancelled=False):
+        if is_cancelled:
+            self.is_cancelled = True
+        await self.onUploadError(error)

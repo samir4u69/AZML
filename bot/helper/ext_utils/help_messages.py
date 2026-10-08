@@ -135,6 +135,7 @@ MIRROR_HELP_MESSAGE = [
 19. <b>-ud or -dump :</b> Dump category to Upload, Specific Name (case insensitive) or chat_id or chat_username
 20. <b>-ss or -screenshots :</b> Generate Screenshots for Leeched Files
 21. <b>-t or -thumb :</b> Custom Thumb for Specific Leech
+22. <b>-vt :</b> Open Video Tools before downloading.
 """,
     """
 ➲ <b><i>By along the cmd</i></b>:
