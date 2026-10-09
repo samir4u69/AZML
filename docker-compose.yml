@@ -48,4 +48,4 @@ services:
       - PORT=85
 
     env_file:
-      - .env
+      - config.env

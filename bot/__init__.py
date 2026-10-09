@@ -671,6 +671,31 @@ ENABLE_FFMPEG_CMDS = ENABLE_FFMPEG_CMDS.lower() != "false"
 FFMPEG_ENCODING = environ.get("FFMPEG_ENCODING", "")
 FFMPEG_ENCODING = FFMPEG_ENCODING.lower() == "true"
 
+DISABLE_VT = environ.get("DISABLE_VT", "").lower() == "true"
+VT_FEATURE_FLAGS = {
+    key: environ.get(key, "true").lower() != "false"
+    for key in (
+        "VT_ENCODE_ENABLED",
+        "VT_CONVERT_ENABLED",
+        "VT_MULTI_RES_ENABLED",
+        "VT_MERGE_VIDEO_ENABLED",
+        "VT_MUX_AUDIO_ENABLED",
+        "VT_SOFTSUB_ENABLED",
+        "VT_MUX_ALL_ENABLED",
+        "VT_INTROSUB_ENABLED",
+        "VT_HARDSUB_ENABLED",
+        "VT_RM_SUB_ENABLED",
+        "VT_RM_AUDIO_ENABLED",
+        "VT_RM_STREAMS_ENABLED",
+        "VT_STRIP_META_ENABLED",
+        "VT_EXTRACT_ENABLED",
+        "VT_SWAP_AUDIO_ENABLED",
+        "VT_WATERMARK_ENABLED",
+        "VT_CONVERT_AUDIO_ENABLED",
+        "VT_ASPECT_RATIO_ENABLED",
+    )
+}
+
 config_dict = {
     "ANIME_TEMPLATE": ANIME_TEMPLATE,
     "AS_DOCUMENT": AS_DOCUMENT,
@@ -791,6 +816,8 @@ config_dict = {
     "NYAA_PROXY": NYAA_PROXY,
     "ENABLE_FFMPEG_CMDS": ENABLE_FFMPEG_CMDS,
     "FFMPEG_ENCODING": FFMPEG_ENCODING,
+    "DISABLE_VT": DISABLE_VT,
+    **VT_FEATURE_FLAGS,
 }
 
 if GDRIVE_ID:

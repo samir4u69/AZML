@@ -80,6 +80,26 @@ default_values = {
     "ENABLE_FFMPEG_CMDS": True,
     "FFMPEG_ENCODING": False,
 }
+vt_feature_vars = [
+    "VT_ENCODE_ENABLED",
+    "VT_CONVERT_ENABLED",
+    "VT_MULTI_RES_ENABLED",
+    "VT_MERGE_VIDEO_ENABLED",
+    "VT_MUX_AUDIO_ENABLED",
+    "VT_SOFTSUB_ENABLED",
+    "VT_MUX_ALL_ENABLED",
+    "VT_INTROSUB_ENABLED",
+    "VT_HARDSUB_ENABLED",
+    "VT_RM_SUB_ENABLED",
+    "VT_RM_AUDIO_ENABLED",
+    "VT_RM_STREAMS_ENABLED",
+    "VT_STRIP_META_ENABLED",
+    "VT_EXTRACT_ENABLED",
+    "VT_SWAP_AUDIO_ENABLED",
+    "VT_WATERMARK_ENABLED",
+    "VT_CONVERT_AUDIO_ENABLED",
+    "VT_ASPECT_RATIO_ENABLED",
+]
 bool_vars = [
     "AS_DOCUMENT",
     "BOT_PM",
@@ -105,6 +125,8 @@ bool_vars = [
     "NYAA_PROXY",
     "ENABLE_FFMPEG_CMDS",
     "FFMPEG_ENCODING",
+    "DISABLE_VT",
+    *vt_feature_vars,
 ]
 
 
@@ -643,6 +665,11 @@ async def load_config():
     FFMPEG_ENCODING = environ.get("FFMPEG_ENCODING", "")
     FFMPEG_ENCODING = FFMPEG_ENCODING.lower() == "true"
 
+    DISABLE_VT = environ.get("DISABLE_VT", "").lower() == "true"
+    VT_FEATURE_FLAGS = {
+        key: environ.get(key, "true").lower() != "false" for key in vt_feature_vars
+    }
+
     list_drives_dict.clear()
     if GDRIVE_ID:
         list_drives_dict["Main"] = {"drive_id": GDRIVE_ID, "index_link": INDEX_URL}
@@ -814,6 +841,8 @@ async def load_config():
             "NYAA_PROXY": NYAA_PROXY,
             "ENABLE_FFMPEG_CMDS": ENABLE_FFMPEG_CMDS,
             "FFMPEG_ENCODING": FFMPEG_ENCODING,
+            "DISABLE_VT": DISABLE_VT,
+            **VT_FEATURE_FLAGS,
         }
     )
 

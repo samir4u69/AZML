@@ -46,7 +46,7 @@ async def _main_menu(sess) -> tuple:
         sess.func_key = None
 
     for fkey, (label, _, cfg) in VT_FUNCS.items():
-        if not getattr(Config, cfg, True):
+        if not config_dict.get(cfg, True):
             continue
         if sess.func_key == fkey:
             btns.data_button(f"✓ {label}", f"vtmenu {uid} fn {fkey}")

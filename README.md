@@ -148,6 +148,29 @@
 </details>
 
 <details>
+  <summary><b>🎬 Video Tools (`-vt`)</b></summary>
+
+Open an interactive FFmpeg menu before downloading by adding `-vt` to any mirror or leech command.
+
+- Encode video with selectable codec, CRF, preset, resolution, FPS, and container
+- Convert/remux containers and convert audio formats
+- Generate multiple resolutions
+- Merge videos or mux external audio/subtitle files
+- Add soft subtitles, hard subtitles, intro subtitles, and text/image watermarks
+- Remove audio, subtitles, selected streams, metadata, or chapters
+- Extract selected audio/subtitle streams, swap audio tracks, and change aspect ratio
+- Enable or disable Video Tools globally or per operation in `config.env`
+
+```text
+/leech https://example.com/video.mkv -vt
+/leech -vt
+```
+
+For reply mode, reply to the Telegram media/file or link—not to a previous bot response—with `/leech -vt` or `/l -vt`.
+
+</details>
+
+<details>
   <summary><b>📰 RSS</b></summary>
 
 - RSS feed monitoring with filters
@@ -531,36 +554,44 @@ sudo apt update && sudo apt install -y docker.io docker-compose-v2 nano
 
 ### 2. Clone Repository
 ```bash
-git clone https://github.com/aquib4040/AZML.git
+git clone https://github.com/samir4u69/AZML.git
 cd AZML
 ```
 
-### 3. Setup Environment Variables (`.env`)
-Create and edit your `.env` file using `nano`. Docker Compose will automatically detect and load this `.env` file upon container startup:
+### 3. Configure `config.env`
+Edit the included configuration file and set at least `BOT_TOKEN`, `TELEGRAM_API`, `TELEGRAM_HASH`, and `OWNER_ID`:
 
 ```bash
-nano .env
+nano config.env
 ```
-
-Paste your required configuration variables (e.g. `BOT_TOKEN`, `TELEGRAM_API`, `TELEGRAM_HASH`, `OWNER_ID`, `DATABASE_URL`):
 
 ```env
-BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyZ
-OWNER_ID=123456789
-TELEGRAM_API=123456
-TELEGRAM_HASH=0123456789abcdef0123456789abcdef
-DATABASE_URL=mongodb+srv://...
+BOT_TOKEN = "123456789:ABCdefGHIjklMNOpqrsTUVwxyZ"
+OWNER_ID = "123456789"
+TELEGRAM_API = "123456"
+TELEGRAM_HASH = "0123456789abcdef0123456789abcdef"
+DATABASE_URL = "mongodb+srv://..."
 ```
-*(Press `Ctrl+O` then `Enter` to save, and `Ctrl+X` to exit nano.)*
 
-### 4. Build and Run Container
-Start the bot in detached (background) mode:
-
+### 4. Build and Run with Docker Compose
 ```bash
 docker compose up -d --build
 ```
 
-### 5. Container Management Commands
+`docker-compose.yml` loads `config.env` automatically.
+
+### 5. Build and Run with Docker Directly
+```bash
+docker build --pull -t azml:latest .
+docker run -d \
+  --name azml \
+  --restart unless-stopped \
+  --env-file config.env \
+  -p 11687:85 \
+  azml:latest
+```
+
+### 6. Container Management Commands
 - **View Live Logs**:
   ```bash
   docker compose logs -f
@@ -935,6 +966,31 @@ Supported sites via API: 1337x, Piratebay, Nyaasi, Torlock, Torrent Galaxy, Zooq
 | `AUTHOR_NAME` | `str` | Author name on Telegraph pages |
 | `AUTHOR_URL` | `str` | Author URL on Telegraph pages |
 | `COVER_IMAGE` | `str` | graph.org image URL for Telegraph page header |
+
+</details>
+
+<details>
+  <summary><b>Video Tools</b></summary>
+
+| Variable | Type | Description |
+|---|---|---|
+| `DISABLE_VT` | `bool` | Disable the `-vt` menu globally (default: `False`) |
+| `VT_ENCODE_ENABLED` | `bool` | Enable video encoding |
+| `VT_CONVERT_ENABLED` | `bool` | Enable container conversion/remuxing |
+| `VT_MULTI_RES_ENABLED` | `bool` | Enable multi-resolution output |
+| `VT_MERGE_VIDEO_ENABLED` | `bool` | Enable video merging |
+| `VT_MUX_AUDIO_ENABLED` | `bool` | Enable external audio muxing |
+| `VT_SOFTSUB_ENABLED` / `VT_HARDSUB_ENABLED` | `bool` | Enable soft/hard subtitles |
+| `VT_MUX_ALL_ENABLED` / `VT_INTROSUB_ENABLED` | `bool` | Enable combined muxing and intro subtitles |
+| `VT_RM_SUB_ENABLED` / `VT_RM_AUDIO_ENABLED` | `bool` | Enable removal of all subtitle/audio streams |
+| `VT_RM_STREAMS_ENABLED` | `bool` | Enable selective stream removal |
+| `VT_STRIP_META_ENABLED` | `bool` | Enable metadata/chapter stripping |
+| `VT_EXTRACT_ENABLED` / `VT_SWAP_AUDIO_ENABLED` | `bool` | Enable stream extraction and audio-track swapping |
+| `VT_WATERMARK_ENABLED` | `bool` | Enable text/image watermarks |
+| `VT_CONVERT_AUDIO_ENABLED` | `bool` | Enable audio conversion |
+| `VT_ASPECT_RATIO_ENABLED` | `bool` | Enable aspect-ratio changes |
+
+All operation switches default to `True`.
 
 </details>
 

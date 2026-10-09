@@ -162,6 +162,11 @@ MIRROR_HELP_MESSAGE = [
 <b>Direct Link:</b> dl_link specifies download link, where it is Image url
 <b>Tg Link:</b> Give Public/Private/Super Link to download Image from Tg
 
+➲ <b><i>Video Tools</i></b>: -vt
+<code>/cmd</code> link -vt
+Or reply directly to a Telegram file/link with <code>/cmd -vt</code>.
+Select an FFmpeg operation and its settings from the menu before downloading.
+
 ➲ <b><i>Extract / Zip</i></b>: -uz -z or -zip -unzip or -e -extract
 <code>/cmd</code> link -e password (extract password protected)
 <code>/cmd</code> link -z password (zip password protected)
